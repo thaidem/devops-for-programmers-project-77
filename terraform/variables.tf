@@ -75,10 +75,10 @@ variable "datadog_app_key" {
   sensitive = true
 }
 
-variable "datadog_api_url" {
-  type      = string
-  sensitive = true
-}
+#variable "datadog_api_url" {
+#  type      = string
+#  sensitive = true
+#}
 
 variable "datadog_site" {
   type      = string

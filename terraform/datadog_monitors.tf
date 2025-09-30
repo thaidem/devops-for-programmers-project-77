@@ -8,5 +8,14 @@ resource "datadog_monitor" "HTTP_Check_Devops3" {
 EOT
   message           = <<EOT
 HTTP Check failed
+{{#is_alert}}
+HTTP service check failed for host: {{host.name}}
+{{/is_alert}}
+
+{{#is_recovery}}
+HTTP service check recovered for host: {{host.name}}
+{{/is_recovery}}
 EOT
+
+  tags = ["service:http", "environment:production"]
 }
