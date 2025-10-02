@@ -36,12 +36,12 @@
       ansible.builtin.meta: reset_connection
       tags: setup
 
-    - name: Start and enable Docker service
-      ansible.builtin.service:
-        name: docker
-        state: started # Ensures the service is running
-        enabled: true  # Ensures the service starts automatically on boot
-      tags: setup
+#    - name: Start and enable Docker service
+#      ansible.builtin.service:
+#        name: docker
+#        state: started # Ensures the service is running
+#        enabled: true  # Ensures the service starts automatically on boot
+#      tags: setup
 
     - name: Verify Docker installation
       ansible.builtin.command: docker --version
