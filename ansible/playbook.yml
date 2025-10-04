@@ -2,23 +2,15 @@
   hosts: all
   become: true
 
-
   tasks:
     - name: Update apt cache
       ansible.builtin.apt:
         update_cache: true
       tags: setup
 
-
     - name: Install pip via Galaxy role
       ansible.builtin.import_role:
         name: geerlingguy.pip
-      tags: setup
-
-    - name: Установить пакет requests
-      ansible.builtin.pip:
-        name: requests
-        state: present
       tags: setup
 
     - name: Install docker pip module
@@ -27,14 +19,59 @@
         state: present
       tags: setup
 
-    - name: Install Docker via Galaxy role
-      ansible.builtin.import_role:
-        name: geerlingguy.docker
+    - name: Install Docker directly
+      ansible.builtin.apt:
+        name: docker.io
+        state: present
+        update_cache: true
       tags: setup
 
-    - name: Reset SSH connection to apply docker group changes
-      ansible.builtin.meta: reset_connection
+    - name: Start and enable Docker service
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: true
       tags: setup
+
+    - name: Add user to docker group
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: true
+      tags: setup
+
+#  tasks:
+#    - name: Update apt cache
+#      ansible.builtin.apt:
+#        update_cache: true
+#      tags: setup
+
+
+#    - name: Install pip via Galaxy role
+#      ansible.builtin.import_role:
+#        name: geerlingguy.pip
+#      tags: setup
+
+#    - name: Установить пакет requests
+#      ansible.builtin.pip:
+#        name: requests
+#        state: present
+#      tags: setup
+
+#    - name: Install docker pip module
+#      ansible.builtin.pip:
+#        name: docker
+#        state: present
+#      tags: setup
+
+#    - name: Install Docker via Galaxy role
+#      ansible.builtin.import_role:
+#        name: geerlingguy.docker
+#      tags: setup
+
+#    - name: Reset SSH connection to apply docker group changes
+#      ansible.builtin.meta: reset_connection
+#      tags: setup
 
 #    - name: Start and enable Docker service
 #      ansible.builtin.service:
@@ -43,35 +80,35 @@
 #        enabled: true  # Ensures the service starts automatically on boot
 #      tags: setup
 
-    - name: Verify Docker installation
-      ansible.builtin.command: docker --version
-      register: docker_check
-      failed_when: docker_check.rc != 0
-      changed_when: false
-      tags: setup
-    - name: Create Docker config directory
-      ansible.builtin.file:
-        path: /etc/docker
-        state: directory
-        mode: '0755'
-      tags: setup
+#    - name: Verify Docker installation
+#      ansible.builtin.command: docker --version
+#      register: docker_check
+#      failed_when: docker_check.rc != 0
+#      changed_when: false
+#      tags: setup
+#    - name: Create Docker config directory
+#      ansible.builtin.file:
+#        path: /etc/docker
+#        state: directory
+#        mode: '0755'
+#      tags: setup
 
-    - name: Configure Docker daemon with Yandex mirror
-      ansible.builtin.copy:
-        content: |
-          {
-            "registry-mirrors": ["https://mirror.gcr.io"]
-          }
-        dest: /etc/docker/daemon.json
-        mode: '0644'
-      notify: restart docker
-      tags: setup
+#    - name: Configure Docker daemon with Yandex mirror
+#      ansible.builtin.copy:
+#        content: |
+#          {
+#            "registry-mirrors": ["https://mirror.gcr.io"]
+#          }
+#        dest: /etc/docker/daemon.json
+#        mode: '0644'
+#      notify: restart docker
+#      tags: setup
 
-    - name: Restart Docker to apply mirror configuration
-      ansible.builtin.service:
-        name: docker
-        state: restarted
-      tags: setup
+#    - name: Restart Docker to apply mirror configuration
+#      ansible.builtin.service:
+#        name: docker
+#        state: restarted
+#      tags: setup
 
 
 - name: Deploy Redmine
